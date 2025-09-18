@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GAMEPLA631 - Tabuľka streleckého skóre</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⭐</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* Tmavé pozadie */
+            background-image: radial-gradient(#2d3748 1px, transparent 1px);
+            background-size: 10px 10px;
+            color: #d1d5db;
+        }
+        .container {
+            max-width: 900px;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-300 min-h-screen flex items-center justify-center py-12">
+
+    <div class="container mx-auto px-4 py-12">
+        <!-- Hlavička stránky -->
+        <header class="text-center mb-16">
+            <h1 class="text-6xl md:text-7xl font-extrabold text-white tracking-tight leading-none mb-2 drop-shadow-lg">GAMEPLA631</h1>
+            <p class="text-xl md:text-2xl font-semibold text-gray-400">Oficiálna tabuľka streleckého skóre</p>
+            <p class="text-lg text-gray-400 mt-2">Za posledných 5 rokov sa zúčastnilo viac ako 100 000 hráčov.</p>
+        </header>
+
+        <!-- Sekcia s tabuľkou skóre -->
+        <div class="bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-10 border border-gray-700">
+            <h2 class="text-3xl font-bold text-center mb-8 text-white">Legendárne Ocenenia</h2>
+            
+            <!-- Vyhľadávací formulár -->
+            <div class="mb-8 relative flex items-center">
+                <input type="text" id="searchInput" placeholder="Vyhľadaj hráča..." class="w-full pl-10 pr-4 py-3 bg-gray-700 text-gray-200 border border-gray-600 rounded-full focus:outline-none focus:border-sky-500 placeholder-gray-400 transition-colors duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 absolute left-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
+            
+            <div class="overflow-x-auto rounded-2xl">
+                <table class="min-w-full leading-normal">
+                    <thead>
+                        <tr class="bg-sky-600 text-white uppercase text-sm font-bold tracking-wider rounded-t-2xl">
+                            <th class="px-5 py-4 border-b-2 border-sky-700 text-left rounded-tl-2xl">
+                                Poradie
+                            </th>
+                            <th class="px-5 py-4 border-b-2 border-sky-700 text-left">
+                                Hráč
+                            </th>
+                            <th class="px-5 py-4 border-b-2 border-sky-700 text-left">
+                                Skóre
+                            </th>
+                            <th class="px-5 py-4 border-b-2 border-sky-700 text-left rounded-tr-2xl">
+                                Ocenenie
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="scoreTableBody" class="text-gray-200">
+                        <!-- Riadky tabuľky budú vložené pomocou JavaScriptu -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const scoreTableBody = document.getElementById('scoreTableBody');
+            const searchInput = document.getElementById('searchInput');
+            const totalPlayers = 1852;
+            let allPlayers = [];
+
+            // Pripravené údaje pre špeciálnych hráčov
+            const specialPlayers = {
+                1: { name: 'KRAL HOROROVIEK', score: 855000, award: '👑 Legendárne', rowClass: 'bg-indigo-900 even:bg-indigo-950 hover:bg-indigo-700 transition-colors duration-200 text-white', textClass: 'text-sm font-semibold ml-2 text-indigo-400' },
+                2: { name: 'MajsterHeads', score: 98120, award: '🏆 Šampión', rowClass: 'bg-gray-800 even:bg-gray-900 hover:bg-gray-700 transition-colors duration-200 text-gray-200', textClass: 'text-sm font-semibold ml-2 text-gray-400' },
+                3: { name: 'SuperShot', score: 85700, award: '⭐ Elitný Hráč', rowClass: 'bg-gray-800 even:bg-gray-900 hover:bg-gray-700 transition-colors duration-200 text-gray-200', textClass: 'text-sm font-semibold ml-2 text-gray-400' },
+                4: { name: 'RobloxPro', score: 75900, award: '🏅 Veterán', rowClass: 'bg-gray-800 even:bg-gray-900 hover:bg-gray-700 transition-colors duration-200 text-gray-200', textClass: 'text-sm font-semibold ml-2 text-gray-400' },
+                50: { name: 'RRCBT577', score: 6000, award: '🏅 Hráč', rowClass: 'bg-gray-800 even:bg-gray-900 hover:bg-gray-700 transition-colors duration-200 text-gray-200', textClass: 'text-sm font-semibold ml-2 text-gray-400' },
+                1852: { name: 'Boosing BassTV', score: 100, award: '⚪ Nováčik', rowClass: 'bg-gray-800 even:bg-gray-900 hover:bg-gray-700 transition-colors duration-200 text-gray-200', textClass: 'text-sm font-semibold ml-2 text-gray-400' },
+            };
+            
+            // Funkcia na generovanie náhodných hráčskych mien a skóre
+            const generateRandomPlayer = () => {
+                const adjectives = ['Cool', 'Quick', 'Roblox', 'Elite', 'Fast', 'Power', 'Mega', 'Shadow'];
+                const nouns = ['Shooter', 'Warrior', 'Ninja', 'Sniper', 'Gamer', 'Hunter', 'Blade', 'Master'];
+                const randomNumber = Math.floor(Math.random() * 9999);
+                const name = `${adjectives[Math.floor(Math.random() * adjectives.length)]}${nouns[Math.floor(Math.random() * nouns.length)]}${randomNumber}`;
+                const score = Math.floor(Math.random() * 60000) + 1000;
+                return { name, score, award: '🏅 Hráč', rowClass: 'bg-gray-800 even:bg-gray-900 hover:bg-gray-700 transition-colors duration-200 text-gray-200', textClass: 'text-sm font-semibold ml-2 text-gray-400' };
+            };
+
+            // Vygenerovanie všetkých hráčov naraz a ich uloženie
+            for (let i = 1; i <= totalPlayers; i++) {
+                if (specialPlayers[i]) {
+                    allPlayers.push(specialPlayers[i]);
+                } else {
+                    allPlayers.push(generateRandomPlayer());
+                }
+            }
+
+            // Funkcia na vykreslenie tabuľky na základe poskytnutých dát
+            const renderTable = (playersToDisplay) => {
+                let htmlContent = '';
+                playersToDisplay.forEach((player, index) => {
+                    const rowClass = player.rowClass;
+                    const awardText = player.award.split(' ')[1] || 'Hráč';
+                    
+                    // Ak je to špeciálny hráč, použije jeho poradie. Inak použije poradie v aktuálnom zozname
+                    const rank = specialPlayers[index + 1] ? index + 1 : (allPlayers.findIndex(p => p.name === player.name) + 1);
+
+                    htmlContent += `
+                        <tr class="${rowClass}">
+                            <td class="px-5 py-5 border-b border-gray-700 text-lg">
+                                <span class="font-bold">${rank}.</span>
+                            </td>
+                            <td class="px-5 py-5 border-b border-gray-700 text-lg">
+                                <span class="font-bold">${player.name}</span>
+                            </td>
+                            <td class="px-5 py-5 border-b border-gray-700 text-lg">
+                                <span class="font-bold">${player.score.toLocaleString()}</span>
+                            </td>
+                            <td class="px-5 py-5 border-b border-gray-700 text-2xl">
+                                ${player.award.split(' ')[0]}
+                                <span class="${player.textClass}">${awardText}</span>
+                            </td>
+                        </tr>
+                    `;
+                });
+                scoreTableBody.innerHTML = htmlContent;
+            };
+
+            // Vykreslenie celej tabuľky pri prvom načítaní
+            renderTable(allPlayers);
+
+            // Pridanie poslucháča udalosti na vyhľadávacie pole
+            searchInput.addEventListener('input', (event) => {
+                const searchTerm = event.target.value.toLowerCase();
+                const filteredPlayers = allPlayers.filter(player => player.name.toLowerCase().includes(searchTerm));
+                renderTable(filteredPlayers);
+            });
+        });
+    </script>
+
+</body>
+</html>
